@@ -11,4 +11,14 @@ final authRepositoryProvider = Provider(
   },
 );
 
-final adminProvider = StateProvider((ref) => false);
+// Initialize the adminProvider based on stored value
+// final adminProvider = StateProvider<bool>((ref) async {
+//   bool isAdmin = await AdminManager().getAdminStatus();
+//   return isAdmin;
+// });
+
+// Use FutureProvider to handle async initialization
+// final adminFutureProvider = FutureProvider<bool>((ref) async {
+//   final bool isAdmin = await AdminManager().getAdminStatus();
+//   return isAdmin;
+// });

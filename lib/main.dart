@@ -2,9 +2,9 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:infs803_group7_frontend/src/feature/auth/domain/provider/auth_provider.dart';
 import 'package:infs803_group7_frontend/src/feature/auth/presentation/screen/login_screen.dart';
 import 'package:infs803_group7_frontend/src/feature/auth/presentation/screen/register_screen.dart';
+import 'package:infs803_group7_frontend/src/feature/auth/presentation/state/auth_state_notifier_provider.dart';
 import 'package:infs803_group7_frontend/src/feature/favorite/presentation/screen/favorite_screen.dart';
 import 'package:infs803_group7_frontend/src/feature/landing/presentation/screen/splash_screen.dart';
 import 'package:infs803_group7_frontend/src/feature/movie/presentation/screen/movie_add.dart';
@@ -30,12 +30,49 @@ final GlobalKey<NavigatorState> _userNavigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _favoriteNavigatorKey =
     GlobalKey<NavigatorState>();
 
-class MyApp extends ConsumerWidget {
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
+  static void resetRoute(BuildContext context) {
+    context.findAncestorStateOfType<_MyAppState>()?.initRouter();
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final router = GoRouter(
+  ConsumerState<ConsumerStatefulWidget> createState() => _MyAppState();
+}
+
+class _MyAppState extends ConsumerState<MyApp> {
+  late GoRouter router;
+
+  @override
+  void initState() {
+    super.initState();
+    initRouter();
+  }
+
+  @override
+  void didUpdateWidget(covariant MyApp oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    initRouter();
+  }
+
+  void initRouter() {
+    setState(() {
+      router = createRouter();
+    });
+  }
+
+  GoRouter createRouter() {
+    // ref.refresh(adminFutureProvider);
+
+    // final isAdmin = ref.read(adminFutureProvider).maybeWhen(
+    //       data: (value) => value,
+    //       orElse: () => false,
+    //     );
+
+    final value = ref.read(adminNotifierProvider);
+
+    return GoRouter(
       initialLocation: "/",
       navigatorKey: _rootNavigatorKey,
       routes: [
@@ -180,7 +217,7 @@ class MyApp extends ConsumerWidget {
                 ),
               ],
             ),
-            if (ref.watch(adminProvider) == true)
+            if (value == true)
               StatefulShellBranch(
                 navigatorKey: _userNavigatorKey,
                 routes: [
@@ -275,7 +312,7 @@ class MyApp extends ConsumerWidget {
                   ),
                 ],
               ),
-            if (ref.watch(adminProvider) == false)
+            if (value == false)
               StatefulShellBranch(
                 navigatorKey: _favoriteNavigatorKey,
                 routes: [
@@ -330,7 +367,10 @@ class MyApp extends ConsumerWidget {
         ),
       ],
     );
+  }
 
+  @override
+  Widget build(BuildContext context) {
     final themeMode = ref.watch(themeNotifierProvider);
 
     return DynamicColorBuilder(
